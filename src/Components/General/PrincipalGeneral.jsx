@@ -1,14 +1,14 @@
 import React from 'react'
 import Header from './Header'
-import Nav from './Nav'
 import { Outlet } from 'react-router-dom'
+import Nav from '../../Components/General/Nav'
 
 const Principal = () => {
   return (
     <div>
         <Header />
         <Outlet />
-        <Nav />
+        <Nav/>
     </div>
   )
 }

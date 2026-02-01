@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Nav from '../../Components/General/Nav'
+
 
 const DEFAULT_ITEMS = [
   { id: 1, name: "Cola Rosa", emoji: "🎀", category: "Cola" },
@@ -84,7 +84,6 @@ export default function Principal() {
 
   return (
     <div className="min-h-screen bg-pink-50 p-4">
-        <Nav/>
 
       {view === "game" && (
         <div className="flex items-center justify-center">

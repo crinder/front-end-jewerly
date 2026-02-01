@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { apis } from '../Utils/Util';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
@@ -7,6 +8,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
 
     const handleSubmit = async (e) => {
@@ -16,12 +18,12 @@ const Login = () => {
 
         const user = { username, password };
 
-        console.log(user);
-
         const response = await apis.login(user);
 
         if (response.status === 'success') {
             setLoading(false);
+            navigate('/app-jewerly');
+            navigate(0);
         } else {
             setError(response.message);
             setLoading(false);
@@ -47,7 +49,6 @@ const Login = () => {
                     className="w-full border rounded-xl px-3 py-2 mb-3"
                     required
                 />
-
 
                 <input
                     type="password"
