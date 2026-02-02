@@ -7,7 +7,8 @@ import PrincipalGeneral from '../General/PrincipalGeneral';
 import Principal from '../jewerly/Principal';
 import Login from '../Admin/Login';
 import Plan from '../Jewerly/Plan';
-import Items from '../Planes/Items';
+import Items from '../Items/Items';
+import Upload from '../Items/Upload';
 import Protected from './Protected';
 
 
@@ -26,7 +27,8 @@ const Routing = () => {
                         <Route index element={<Navigate to="home" replace />} />
                         <Route path="home" element={<AnimatedPage><Principal /></AnimatedPage>} />
                         <Route path="planes" element={<AnimatedPage><Plan /></AnimatedPage>} />
-                        <Route path="planes/:id" element={<AnimatedPage><Items /></AnimatedPage>} />
+                        <Route path="items" element={<AnimatedPage><Items /></AnimatedPage>} />
+                        <Route path="items-upload" element={<AnimatedPage><Upload /></AnimatedPage>} />
                     </Route>
                 </Route>
 

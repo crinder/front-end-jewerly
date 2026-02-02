@@ -1,12 +1,12 @@
 const url = 'http://localhost:3900/api/';
 
 export const apis = {
-    
+
     login: async (user) => {
 
-        const request = await fetch(`${url}users/login`, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
+        const request = await fetch(`${url}users/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(user),
             credentials: 'include'
         });
@@ -32,8 +32,8 @@ export const apis = {
             }
         }
 
-        const request = await fetch(`${url}users/refresh`, { 
-            method: 'GET', 
+        const request = await fetch(`${url}users/refresh`, {
+            method: 'GET',
             headers,
             credentials: 'include'
         });
@@ -70,4 +70,36 @@ export const apis = {
 
     },
 
+    uploadItem: async (data) => {
+
+        const request = await fetch(`${url}items/upload`, {
+            method: 'POST',
+            body: data,
+        });
+
+        if (!request.ok) throw new Error('Error guardando planes');
+
+        return request.json();
+
+    },
+
+    getItems: async () => {
+
+        const request = await fetch(`${url}items/getAll`, {
+            method: 'GET'
+        });
+
+        if (!request.ok) throw new Error('Error buscando planes');
+
+        return request.json();
+
+    },
+
+    getItemImage: (file) => {
+
+        console.log(file);
+
+        return `${url}items/image/${file}`;
+
+    },
 }
