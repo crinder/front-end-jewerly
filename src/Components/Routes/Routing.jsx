@@ -6,7 +6,7 @@ import AnimatedPage from '../Utils/Animated';
 import PrincipalGeneral from '../General/PrincipalGeneral';
 import Principal from '../jewerly/Principal';
 import Login from '../Admin/Login';
-import Plan from '../Jewerly/Plan';
+import Plan from '../Planes/Plan';
 import Items from '../Items/Items';
 import Upload from '../Items/Upload';
 import Protected from './Protected';

@@ -102,4 +102,32 @@ export const apis = {
         return `${url}items/image/${file}`;
 
     },
+
+    updateItem: async (data) => {
+
+        const request = await fetch(`${url}items/update`, {
+            method: 'POST',
+            body: data,
+        });
+
+        if (!request.ok) throw new Error('Error actualizando item');
+
+        return request.json();
+
+    },
+
+    createSession: async (data) => {
+
+        const request = await fetch(`${url}sesions/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        if (!request.ok) throw new Error('Error creando sesion');
+
+        return request.json();
+
+    },
+
 }

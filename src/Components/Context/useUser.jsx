@@ -8,6 +8,12 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(false);
     const [loading, setLoading] = useState(true);
     const [userOff, setUserOff] = useState(false);
+    const [session, setSession] = useState(false);
+    const [sessionId, setSessionId] = useState(false);
+    const [turnsUsed, setTurnsUsed] = useState(0);
+    const [totalTurns, setTotalTurns] = useState(0);
+    const [idPlanSelected, setIdPlanSelected] = useState(false);
+    const [idOptionSelected, setIdOptionSelected] = useState(false);
 
     const checkAuth = async () => {
 
@@ -41,6 +47,12 @@ export const AuthProvider = ({ children }) => {
     return (
         <Context.Provider value={{
             
+            session, setSession,
+            sessionId, setSessionId,
+            turnsUsed, setTurnsUsed,
+            totalTurns, setTotalTurns,
+            idPlanSelected, setIdPlanSelected,
+            idOptionSelected, setIdOptionSelected
         }}>
             {children}
         </Context.Provider>

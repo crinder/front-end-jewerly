@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { apis } from '../Utils/Util';
-import Crear from '../Planes/Crear';
+import Crear from './Crear';
 import { useNavigate } from 'react-router-dom';
 import { Gift } from 'lucide-react';
 
