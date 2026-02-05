@@ -96,11 +96,7 @@ export const apis = {
     },
 
     getItemImage: (file) => {
-
-        console.log(file);
-
         return `${url}items/image/${file}`;
-
     },
 
     updateItem: async (data) => {
@@ -116,12 +112,39 @@ export const apis = {
 
     },
 
+    updatePlan: async (id, data) => {
+
+        const request = await fetch(`${url}plan-options/update/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        if (!request.ok) throw new Error('Error actualizando plan');
+
+        return request.json();
+
+    },
+
     createSession: async (data) => {
 
         const request = await fetch(`${url}sesions/add`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
+        });
+
+        if (!request.ok) throw new Error('Error creando sesion');
+
+        return request.json();
+
+    },
+
+    turnPlay: async (id) => {
+
+        const request = await fetch(`${url}sesions/turn/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
         });
 
         if (!request.ok) throw new Error('Error creando sesion');

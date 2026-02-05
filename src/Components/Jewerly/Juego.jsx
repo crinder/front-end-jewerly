@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useUser } from '../Context/useUser';
+import { apis } from '../Utils/Util';
 
 const Juego = () => {
 
@@ -11,24 +12,16 @@ const Juego = () => {
     const [history, setHistory] = useState([]);
 
     const spin = () => {
-        if (!selectedOption) return;
-        if (spinning || turnsUsed >= totalTurns) return;
 
-        setSpinning(true);
-        let ticks = 0;
+         const data = apis.turnPlay(sessionId);
+          console.log(data);
 
-        const interval = setInterval(() => {
-            setCurrent(items[Math.floor(Math.random() * items.length)]);
-            ticks++;
-            if (ticks > 12) {
-                clearInterval(interval);
-                const prize = items[Math.floor(Math.random() * items.length)];
-                setCurrent(prize);
-                setHistory(h => [...h, prize]);
-                setTurnsUsed(t => t + 1);
-                setSpinning(false);
-            }
-        }, 80);
+        /*setInterval(() => {
+
+            const data = apis.turnPlay(sessionId);
+            console.log(data.items);
+            
+        }, 2000);*/
     };
 
     const addItem = e => {
@@ -55,8 +48,8 @@ const Juego = () => {
             </div>
 
             <button
-                onClick={spin}
-                disabled={!selectedOption || spinning || turnsUsed >= totalTurns}
+                onClick={ () => spin()}
+                disabled={spinning || turnsUsed >= totalTurns}
                 className="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold disabled:opacity-40"
             >
                 {spinning ? "Girando..." : "Girar 🎰"}

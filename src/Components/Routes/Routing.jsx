@@ -10,6 +10,7 @@ import Plan from '../Planes/Plan';
 import Items from '../Items/Items';
 import Upload from '../Items/Upload';
 import Protected from './Protected';
+import ItemsPlan from '../Items/ItemsPlan';
 
 
 const Routing = () => {
@@ -29,6 +30,7 @@ const Routing = () => {
                         <Route path="planes" element={<AnimatedPage><Plan /></AnimatedPage>} />
                         <Route path="items" element={<AnimatedPage><Items /></AnimatedPage>} />
                         <Route path="items-upload" element={<AnimatedPage><Upload /></AnimatedPage>} />
+                        <Route path="items-plan/:id" element={<AnimatedPage><ItemsPlan /></AnimatedPage>} />
                     </Route>
                 </Route>
 

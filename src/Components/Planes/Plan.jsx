@@ -35,7 +35,7 @@ const Plan = () => {
                                             {plan.description}
                                         </p>
                                         <span>
-                                            <Gift size={24} onClick={() => navigate(`/app-jewerly/planes/${plan._id}`)}/>
+                                            <Gift size={24} onClick={() => navigate(`/app-jewerly/items-plan/${plan._id}`)}/>
                                         </span>
                                         
                                     </div>
