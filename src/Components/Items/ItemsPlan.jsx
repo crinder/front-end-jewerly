@@ -32,7 +32,6 @@ const ItemsPlan = () => {
 
     const updateItems = async () => {
 
-
         let data = {
                 availableItems: selectedItems.map((item) => ({
                     item: item.id,
@@ -44,9 +43,29 @@ const ItemsPlan = () => {
     };
 
     useEffect(() => {
+
+        const param = {
+            planId: id
+        }
+
         const getItems = async () => {
-            const data = await apis.getItems();
+            const data = await apis.getItems(param);
             setItems(data.items);
+
+            const newItems = data.items.filter(item => item.exists).map(item => {
+
+                if(item.exists){
+                    return {
+                        id: item._id,
+                        exists: item.exists,
+                        chance: item.chance 
+                    }
+                }
+            });
+
+            console.log(newItems);
+
+            setSelectedItems(newItems);
         }
 
         getItems();
@@ -61,24 +80,24 @@ const ItemsPlan = () => {
                     <div className="hidden md:flex gap-4 px-4 mb-2 text-sm font-bold text-gray-500">
                         <div className="w-20">Vista</div>
                         <div className="flex-1">Nombre del producto</div>
-                        <div className="w-48">Categoría</div>
+                        <div className="w-48">% premio</div>
                     </div>
 
                     <div className="space-y-3 max-h-125 overflow-y-auto pr-2">
                         {items.map(item => {
                             const selected = selectedItems.find(i => i.id === item._id);
-                            const isSelected = Boolean(selected);
+                            let isSelected = Boolean(selected);
+                            let porcentaje = selected?.chance ?? "";
+                            
+                            console.log(selected);
 
                             return (
-                                <div
-                                    key={item._id}
-                                    onClick={() => toggleItem(item._id)}
-                                    className={`relative flex flex-col gap-4 p-4 rounded-2xl border cursor-pointer
-        ${isSelected
-                                            ? "bg-pink-100 border-pink-400 shadow-md"
-                                            : "bg-pink-50 border-pink-100"}
-      `}
-                                >
+                                <div key={item._id}
+                                     onClick={() => toggleItem(item._id)}
+                                     className={`relative flex flex-col gap-4 p-4 rounded-2xl border cursor-pointer
+                                ${isSelected ? 'bg-pink-100 border-pink-400 shadow-md' : 'bg-pink-50 border-pink-100'}
+
+                                `}>
 
                                     <div className="flex justify-between items-center">
 
@@ -102,7 +121,7 @@ const ItemsPlan = () => {
                                             type="number"
                                             placeholder="% chance"
                                             disabled={!isSelected}
-                                            value={selected?.chance ?? ""}
+                                            value={porcentaje}
                                             onClick={(e) => e.stopPropagation()}
                                             onChange={(e) => updateChance(item._id, e.target.value)}
                                             className="w-1/2 border rounded-lg px-2 py-1"

@@ -13,7 +13,6 @@ const Plan = () => {
     useEffect(() => {
         const getPlans = async () => {
             const data = await apis.getPlans();
-            console.log(data.planOptions);
             setPlans(data.planOptions);
         }
 
@@ -24,7 +23,7 @@ const Plan = () => {
         <div className="min-h-screen bg-pink-50 p-4">
             <div className="flex items-center justify-center">
                 <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-6 text-center">
-                    <h1 className="text-2xl font-bold text-pink-600 mb-1">🎀 Planes</h1>
+                    <h1 className="text-2xl font-bold text-pink-600 mb-5">🎀 Planes</h1>
 
                     <Accordion multiple activeIndex={[0]}>
                         {plans && plans.map((plan, i) => {
@@ -32,18 +31,17 @@ const Plan = () => {
                                 <AccordionTab header={plan.name} key={i}>
                                     <div className='flex  justify-between items-center'>
                                         <p className="m-0">
-                                            {plan.description}
                                         </p>
                                         <span>
-                                            <Gift size={24} onClick={() => navigate(`/app-jewerly/items-plan/${plan._id}`)}/>
+                                            <Gift className='text-pink-500' size={24} onClick={() => navigate(`/app-jewerly/items-plan/${plan._id}`)} />
                                         </span>
-                                        
+
                                     </div>
 
-                                    <p className="m-0">
+                                    <p className="m-0 grid grid-cols-2 gap-2">
                                         {plan.options.map((option, i) => {
                                             return (
-                                                <div key={i} className="flex flex-col items-center justify-center">
+                                                <div key={i} className="lex justify-between items-center gap-2 flex flex-col items-center justify-center">
                                                     <span className="font-bold">Precio: {option.price}</span>
                                                     <span>Turnos: {option.turns}</span>
                                                 </div>

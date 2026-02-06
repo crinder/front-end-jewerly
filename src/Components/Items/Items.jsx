@@ -21,13 +21,10 @@ const Items = () => {
 
     const handleUpdateItem = (id, field, value) => {
     setSelectedItem(prevItems => {
-        // .map crea un nuevo array automáticamente (mantiene la inmutabilidad)
         return prevItems.map(item => {
             if (item._id === id) {
-                // Si es el ID que buscamos, devolvemos una copia con el cambio
                 return { ...item, [field]: value };
             }
-            // Si no es, lo devolvemos tal cual
             return item;
         });
     });

@@ -23,7 +23,7 @@ export default function Principal() {
     const response = await apis.createSession(data);
     setSessionId(response.session._id);
     setTurnsUsed(response.session.turnsUsed);
-    setTotalTurns(response.session.totalPaid);  
+    setTotalTurns(response.session.planSnapshot.turns);
 
     if (stepperRef.current) {
         stepperRef.current.nextCallback();

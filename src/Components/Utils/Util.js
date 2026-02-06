@@ -83,10 +83,12 @@ export const apis = {
 
     },
 
-    getItems: async () => {
+    getItems: async (data) => {
 
         const request = await fetch(`${url}items/getAll`, {
-            method: 'GET'
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         });
 
         if (!request.ok) throw new Error('Error buscando planes');
@@ -151,6 +153,17 @@ export const apis = {
 
         return request.json();
 
+    },
+
+    getPlanId: async (idPlan) => {
+        const request = await fetch(`${url}plan-options/plan/${idPlan}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!request.ok) throw new Error('Error creando sesion');
+
+        return request.json();
     },
 
 }
