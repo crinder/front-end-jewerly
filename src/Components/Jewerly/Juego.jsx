@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useUser } from '../Context/useUser';
 import { apis } from '../Utils/Util';
 import { Gift } from 'lucide-react';
@@ -7,7 +8,7 @@ import { Dialog } from 'primereact/dialog';
 
 const Juego = () => {
 
-    const { sessionId, idPlanSelected, turnsUsed, setTurnsUsed, totalTurns, setTotalTurns } = useUser();
+    const { sessionId, idPlanSelected, turnsUsed, setTurnsUsed, totalTurns, setTotalTurns, historySave } = useUser();
 
     const [selectedOption, setSelectedOption] = useState(null);
     const [spinning, setSpinning] = useState(false);
@@ -15,6 +16,38 @@ const Juego = () => {
     const [history, setHistory] = useState([]);
     const [items, setItems] = useState([]);
     const [visible, setVisible] = useState(false);
+    const queryClient = useQueryClient();
+
+    console.log('idPlanSelected...', idPlanSelected);
+
+    const { data: itemMap , isLoading } = useQuery({
+        queryKey: ['planesId', idPlanSelected],
+        queryFn: () => apis.getPlanId(idPlanSelected),
+        staleTime: 1000 * 60 * 10,
+        gcTime: 1000 * 60 * 60,
+        refetctOnWindowsFocus: true,
+        retry: 2,
+        networkMode: 'offlineFirst',
+        select: (data) => data?.planOption?.availableItems.map(item => ({
+            id: item.item._id,
+            name: item.item.name,
+            url: apis.getItemImage(item.item.url)
+        })) || [],
+    });
+
+    useEffect(() => {
+        if (itemMap.length > 0) {
+            setCurrent(itemMap[0]);
+        }
+
+        const historyId = historySave.map(h => h.itemId);
+
+        const newItems = itemMap.filter(i => historyId.includes(i.id));
+
+        setHistory(newItems);
+
+        setItems(itemMap);
+    }, [itemMap]);
 
     const spin = async () => {
         if (spinning || turnsUsed >= totalTurns) return;
@@ -30,6 +63,8 @@ const Juego = () => {
             const response = await apis.turnPlay(sessionId);
             let itemG = response.item._id;
             let currentTurns = response.turnsUsed;
+
+            queryClient.invalidateQueries(['sesion', sessionId]);
 
             setTimeout(() => {
                 clearInterval(shuffleInterval);
@@ -48,36 +83,6 @@ const Juego = () => {
             console.error("Error al jugar:", error);
         }
     };
-
-    useEffect(() => {
-
-        const getPlanId = async () => {
-            const data = await apis.getPlanId(idPlanSelected);
-
-            const itemMap = data.planOption.availableItems.map(item => {
-                return {
-                    id: item.item._id,
-                    name: item.item.name,
-                    url: apis.getItemImage(item.item.url)
-                }
-            });
-
-            if (itemMap.length > 0) {
-                setCurrent(itemMap[0]);
-            }
-
-            setItems(itemMap);
-        }
-
-        getPlanId();
-
-
-    }, []);
-
-    useEffect(() => {
-        console.log(items);
-    }, [items]);
-
 
     const modal = () => {
 

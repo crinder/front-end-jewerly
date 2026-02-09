@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useQuery } from "@tanstack/react-query";
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { apis } from '../Utils/Util';
 import Crear from './Crear';
@@ -7,17 +8,17 @@ import { Gift } from 'lucide-react';
 
 const Plan = () => {
 
-    const [plans, setPlans] = useState([]);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const getPlans = async () => {
-            const data = await apis.getPlans();
-            setPlans(data.planOptions);
-        }
-
-        getPlans();
-    }, []);
+     const { data, isLoading } = useQuery({
+        queryKey: ['planes'],
+        queryFn: () => apis.getPlans(),
+        staleTime: 1000 * 60 * 10,
+        gcTime: 1000 * 60 * 60,
+        refetctOnWindowsFocus: true,
+        retry: 2,
+        networkMode: 'offlineFirst'
+      });
 
     return (
         <div className="min-h-screen bg-pink-50 p-4">
@@ -26,7 +27,7 @@ const Plan = () => {
                     <h1 className="text-2xl font-bold text-pink-600 mb-5">🎀 Planes</h1>
 
                     <Accordion multiple activeIndex={[0]}>
-                        {plans && plans.map((plan, i) => {
+                        {data?.planOptions && data.planOptions.map((plan, i) => {
                             return (
                                 <AccordionTab header={plan.name} key={i}>
                                     <div className='flex  justify-between items-center'>

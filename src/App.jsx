@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import Principal from '../src/Components/Jewerly/Principal'
 import Routing from './Components/Routes/Routing';
 import { BrowserRouter as Router } from "react-router-dom";
 

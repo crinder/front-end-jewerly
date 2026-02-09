@@ -2,6 +2,7 @@ const url = 'http://localhost:3900/api/';
 
 export const apis = {
 
+    /*** Users ***/
     login: async (user) => {
 
         const request = await fetch(`${url}users/login`, {
@@ -44,6 +45,8 @@ export const apis = {
 
     },
 
+    /*** plan-options ***/
+
     getPlans: async () => {
 
         const request = await fetch(`${url}plan-options/list`, {
@@ -69,6 +72,33 @@ export const apis = {
         return request.json();
 
     },
+
+     updatePlan: async (id, data) => {
+
+        const request = await fetch(`${url}plan-options/update/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        if (!request.ok) throw new Error('Error actualizando plan');
+
+        return request.json();
+
+    },
+
+     getPlanId: async (idPlan) => {
+        const request = await fetch(`${url}plan-options/plan/${idPlan}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!request.ok) throw new Error('Error creando sesion');
+
+        return request.json();
+    },
+
+    /*** items ***/
 
     uploadItem: async (data) => {
 
@@ -114,19 +144,7 @@ export const apis = {
 
     },
 
-    updatePlan: async (id, data) => {
-
-        const request = await fetch(`${url}plan-options/update/${id}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-
-        if (!request.ok) throw new Error('Error actualizando plan');
-
-        return request.json();
-
-    },
+   /*** sesions ***/
 
     createSession: async (data) => {
 
@@ -155,15 +173,16 @@ export const apis = {
 
     },
 
-    getPlanId: async (idPlan) => {
-        const request = await fetch(`${url}plan-options/plan/${idPlan}`, {
+    getSesion: async (idSesion) => {
+        const request = await fetch(`${url}sesions/sesion/${idSesion}`, {   
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
 
-        if (!request.ok) throw new Error('Error creando sesion');
-
+        if (!request.ok) throw new Error('Error buscando sesion');
+            
         return request.json();
+
     },
 
 }

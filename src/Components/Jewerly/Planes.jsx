@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react'
+import { useQuery } from "@tanstack/react-query";
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { apis } from '../Utils/Util';
 import { useUser } from '../Context/useUser';
 
 const Planes = () => {
+
   const [selectedOption, setSelectedOption] = useState(null);
-  const [plans, setPlans] = useState([]);
   const { setIdOptionSelected, setIdPlanSelected } = useUser();
+
+   const { data, isLoading } = useQuery({
+    queryKey: ['planes'],
+    queryFn: () => apis.getPlans(),
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 60,
+    refetctOnWindowsFocus: true,
+    retry: 2,
+    networkMode: 'offlineFirst'
+  });
 
   const handleSelect = (planName, optionIndex, idPlan, idOption) => {
     setSelectedOption({ planName, optionIndex });
@@ -14,20 +25,10 @@ const Planes = () => {
     setIdOptionSelected(idOption);
   };
 
-  const getPlans = async () => {
-    const data = await apis.getPlans();
-    console.log(data.planOptions);
-    setPlans(data.planOptions);
-  }
-
-  useEffect(() => {
-    getPlans();
-  }, []);
-
   return (
     <div className="mb-4 space-y-3">
       <Accordion multiple activeIndex={[0]}>
-        {plans && plans.map((plan, key) => {
+        {data?.planOptions && data.planOptions.map((plan, key) => {
           return (
             <AccordionTab header={plan.name} key={key}>
               <div className="grid grid-cols-1 gap-2">

@@ -1,12 +1,30 @@
 import React, { useState } from 'react';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from 'primereact/dialog';
 import { Trash, SquarePlus } from 'lucide-react';
 import { apis } from '../Utils/Util';
 
 const Crear = () => {
-    const [visible, setVisible] = useState(false);
 
+    const queryClient = useQueryClient();
+    
+    const [visible, setVisible] = useState(false);
     const [opciones, setOpciones] = useState([{ turnos: '', precio: '' }]);
+
+    const { mutate, isLoading } = useMutation({
+        //useMutation se usa para POST, PUT, DELETE, useQuery para GET
+        mutationFn: (nuevoPlan) => apis.savePlan(nuevoPlan),
+        onSuccess: (data) => {
+            //Invalido la query para actualizar los datos
+            queryClient.invalidateQueries(['planes']);
+            setVisible(false);
+            console.log(data);
+        },
+        onError: (error) => {
+            console.log(error);
+        },
+    });
+
     const agregarOpcion = () => {
         setOpciones([...opciones, { turnos: '', precio: '' }]);
     };
@@ -25,7 +43,7 @@ const Crear = () => {
 
     const guardarPlanes = (e) => {
         e.preventDefault();
-    
+
         // RECORDATORIO PASAR A UN HOOK MANUAL
         const data = {
             code: e.target.code.value,
@@ -37,14 +55,8 @@ const Crear = () => {
                 }
             })
         };
-    
-        const savePlan = async () => {
-            const response = await apis.savePlan(data);
-            console.log(response);
-        };
-    
-        savePlan();
-        setVisible(false);
+
+        mutate(data);
     };
 
     return (
@@ -63,7 +75,7 @@ const Crear = () => {
                     </div>
 
                     <hr />
-                    
+
                     <div className="flex justify-between items-center">
                         <span className="font-bold text-gray-700">Configurar Turnos</span>
                         <button type="button" onClick={agregarOpcion} >
@@ -74,19 +86,19 @@ const Crear = () => {
                     <div className="max-h-60 overflow-y-auto space-y-3">
                         {opciones.map((opcion, index) => (
                             <div key={index} className="flex gap-2 items-center bg-gray-50 p-2 rounded-lg border">
-                                <input 
-                                    type="number" 
-                                    name="turnos" 
-                                    placeholder="Cant. Turnos" 
+                                <input
+                                    type="number"
+                                    name="turnos"
+                                    placeholder="Cant. Turnos"
                                     value={opcion.turnos}
                                     onChange={(e) => OpcionChange(index, e)}
                                     className="w-1/2 border rounded-lg px-2 py-1"
                                     required
                                 />
-                                <input 
-                                    type="number" 
-                                    name="precio" 
-                                    placeholder="Precio $" 
+                                <input
+                                    type="number"
+                                    name="precio"
+                                    placeholder="Precio $"
                                     value={opcion.precio}
                                     onChange={(e) => OpcionChange(index, e)}
                                     className="w-1/2 border rounded-lg px-2 py-1"
