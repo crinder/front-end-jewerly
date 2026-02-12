@@ -185,4 +185,18 @@ export const apis = {
 
     },
 
+    getAllSesions: async (firts, rows) => {
+
+        const request = await fetch(`${url}sesions/list`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ first: firts, rows: rows })
+        });
+
+        if (!request.ok) throw new Error('Error buscando sesion');
+            
+        return request.json();
+
+    },
+
 }

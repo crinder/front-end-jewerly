@@ -1,26 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import React, { useMemo, useState, useEffect } from 'react'
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useUser } from '../Context/useUser';
 import { apis } from '../Utils/Util';
 import { Gift } from 'lucide-react';
-import { Dialog } from 'primereact/dialog';
+import Random from './Random';
+import Modal from '../Utils/Modal';
 
 
 const Juego = () => {
+
+    console.log('renderiza el componente juego');
 
     const { sessionId, idPlanSelected, turnsUsed, setTurnsUsed, totalTurns, setTotalTurns, historySave } = useUser();
 
     const [selectedOption, setSelectedOption] = useState(null);
     const [spinning, setSpinning] = useState(false);
-    const [current, setCurrent] = useState(null);
-    const [history, setHistory] = useState([]);
-    const [items, setItems] = useState([]);
     const [visible, setVisible] = useState(false);
     const queryClient = useQueryClient();
+    const [winningItem, setWinningItem] = useState(null);
 
     console.log('idPlanSelected...', idPlanSelected);
 
-    const { data: itemMap , isLoading } = useQuery({
+    const { data: itemMap = [], isLoading } = useQuery({
         queryKey: ['planesId', idPlanSelected],
         queryFn: () => apis.getPlanId(idPlanSelected),
         staleTime: 1000 * 60 * 10,
@@ -35,86 +36,56 @@ const Juego = () => {
         })) || [],
     });
 
-    useEffect(() => {
-        if (itemMap.length > 0) {
-            setCurrent(itemMap[0]);
-        }
+    const history = useMemo(() => {
+        const counts = {};
 
-        const historyId = historySave.map(h => h.itemId);
+        // cuántas veces aparece cada ID en el historial
+        historySave.forEach(h => {
+            counts[h.itemId] = (counts[h.itemId] || 0) + 1;
+        });
 
-        const newItems = itemMap.filter(i => historyId.includes(i.id));
-
-        setHistory(newItems);
-
-        setItems(itemMap);
-    }, [itemMap]);
+        return itemMap
+            .filter(i => counts[i.id]).map(i => ({...i,quantity: counts[i.id]}));
+    }, [itemMap, historySave]);
 
     const spin = async () => {
         if (spinning || turnsUsed >= totalTurns) return;
 
         setSpinning(true);
-
-        const shuffleInterval = setInterval(() => {
-            const randomItem = items[Math.floor(Math.random() * items.length)];
-            setCurrent(randomItem);
-        }, 100);
+        setWinningItem(null);
 
         try {
             const response = await apis.turnPlay(sessionId);
             let itemG = response.item._id;
             let currentTurns = response.turnsUsed;
+            let nturnos = response.nturnos;
+
+            if (nturnos) {
+                localStorage.removeItem('jewerly-sessionId');
+                localStorage.removeItem('jewerly-indexActive');
+            }
 
             queryClient.invalidateQueries(['sesion', sessionId]);
 
             setTimeout(() => {
-                clearInterval(shuffleInterval);
-                const winningItem = items.find(i => i.id === itemG);
-                console.log(winningItem)
-
-                setCurrent(winningItem);
+                setWinningItem(itemMap.find(i => i.id === itemG));
                 setSpinning(false);
                 setTurnsUsed(currentTurns);
-                setHistory(prev => [winningItem, ...prev]);
             }, 1500);
 
         } catch (error) {
-            clearInterval(shuffleInterval);
             setSpinning(false);
             console.error("Error al jugar:", error);
         }
     };
 
-    const modal = () => {
-
-        return (
-            <div className="card flex justify-content-center">
-                <Dialog header="Posibles premios" visible={visible} style={{ width: '50vw' }} onHide={() => { if (!visible) return; setVisible(false); }}>
-                    <ul className='grid grid-cols-2 gap-2'>
-                        {items.map((item, i) => (
-                            <li key={i} className="flex justify-between items-center gap-2 bg-pink-50 px-3 py-1 rounded-lg">
-                                <img src={item.url} alt={item.name} className="w-20 h-20 object-contain" />
-                                <span>{item.name}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </Dialog>
-            </div>
-        )
-
-    }
+    // elimino la definición de modal para que react no cree esta definicion en cada renderizado
+    // me llevo el cuadro random a otro componente para evitar todo el render en este componente
 
     return (
         <div className="flex justify-center flex-col items-center gap-6">
-            <div className="w-40 h-40 mx-auto mb-4 rounded-2xl border-4 border-pink-300 flex flex-col items-center justify-center bg-pink-100">
-                <div className={spinning ? "animate-spin rounded-2xl" : " rounded-2xl"}>
-                    {current?.url ? (
-                        <img src={current.url} alt={current.name} className="w-25 h-25  rounded-xl" />
-                    ) : (
-                        <span className="text-5xl">{current?.emoji || "❔"}</span>
-                    )}
-                </div>
-                <p className="text-sm mt-2 text-pink-500">{current?.name || ""}</p>
-            </div>
+
+            <Random spinning={spinning} itemsAvailable={itemMap} winningItem={winningItem} />
 
             <div className='flex justify-center items-center gap-8 w-full '>
                 <button
@@ -127,7 +98,7 @@ const Juego = () => {
                 <span onClick={() => setVisible(true)}><Gift /></span>
             </div>
 
-            {modal()}
+            <Modal visible={visible} setVisible={setVisible} itemMap={itemMap} />
 
             <div className="flex justify-between gap-10 text-sm  text-gray-600">
                 <span><span className='text-black font-bold'>Turnos:</span> {turnsUsed}/{totalTurns}</span>
@@ -141,6 +112,7 @@ const Juego = () => {
                         <li key={i} className="flex justify-between items-center gap-2 mb-4 bg-pink-50 px-3 py-1 rounded-lg">
                             <img src={p.url} alt={p.name} className="w-20 h-20 object-contain" />
                             <span>{p.name}</span>
+                            <span>{p.quantity}</span>
                         </li>
                     ))}
                     {!history.length && <li className="text-gray-400">Aún no hay premios</li>}

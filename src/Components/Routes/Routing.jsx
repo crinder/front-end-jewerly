@@ -11,7 +11,7 @@ import Items from '../Items/Items';
 import Upload from '../Items/Upload';
 import Protected from './Protected';
 import ItemsPlan from '../Items/ItemsPlan';
-
+import History from '../Jewerly/History';
 
 const Routing = () => {
     const location = useLocation();
@@ -31,6 +31,7 @@ const Routing = () => {
                         <Route path="items" element={<AnimatedPage><Items /></AnimatedPage>} />
                         <Route path="items-upload" element={<AnimatedPage><Upload /></AnimatedPage>} />
                         <Route path="items-plan/:id" element={<AnimatedPage><ItemsPlan /></AnimatedPage>} />
+                        <Route path="historial" element={<AnimatedPage><History /></AnimatedPage>} />
                     </Route>
                 </Route>
 

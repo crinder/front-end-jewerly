@@ -10,7 +10,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 
 export default function Principal() {
-  const { sessionId, setSessionId, setTurnsUsed, setTotalTurns, idPlanSelected, setIdPlanSelected, idOptionSelected, setIdOptionSelected,  setHistorySave } = useUser();
+  const { sessionId, setSessionId, setTurnsUsed, setTotalTurns, idPlanSelected, setIdPlanSelected, idOptionSelected, setIdOptionSelected, setHistorySave, name } = useUser();
   const stepperRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -25,7 +25,6 @@ export default function Principal() {
 
   const [sessionSave, setSessionSave] = useState(() => {
     const idSave = localStorage.getItem('jewerly-sessionId');
-    console.log('idSave...', idSave);
     return idSave ? idSave : null;
   });
 
@@ -93,7 +92,8 @@ export default function Principal() {
     const data = {
       planId: idPlanSelected,
       optionId: idOptionSelected,
-      step: nextIdx
+      step: nextIdx,
+      name: name
     }
 
     mutate(data);
@@ -116,9 +116,7 @@ export default function Principal() {
         <div className="w-full max-w-xl bg-white rounded-3xl shadow-xl p-6 text-center">
           <h1 className="text-2xl font-bold text-pink-600 mb-1">🎀 Slot de Bisutería</h1>
           <p className="text-sm text-gray-500 mb-4">
-            {selectedPlan && selectedOption
-              ? `Plan activo: ${selectedPlan.name} – ${selectedOption.turns} turnos / $${selectedOption.price}`
-              : "Selecciona un plan para jugar"}
+            Selecciona un plan para jugar
           </p>
 
           <div className="card flex justify-content-center">

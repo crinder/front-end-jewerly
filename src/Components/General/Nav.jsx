@@ -9,7 +9,7 @@ const Nav = () => {
     { label: "Inicio", path: "/app-jewerly/Home", icon: Home },
     { label: "Planes", path: "/app-jewerly/Planes", icon: LayoutPanelTop },
     { label: "Items", path: "/app-jewerly/items", icon: Gift },
-    { label: "Historial", path: "/app-jewerly/perfil", icon: NotebookTabs },
+    { label: "Historial", path: "/app-jewerly/historial", icon: NotebookTabs },
   ];
 
   return (

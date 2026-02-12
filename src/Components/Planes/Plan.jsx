@@ -10,7 +10,7 @@ const Plan = () => {
 
     const navigate = useNavigate();
 
-     const { data, isLoading } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ['planes'],
         queryFn: () => apis.getPlans(),
         staleTime: 1000 * 60 * 10,
@@ -18,7 +18,7 @@ const Plan = () => {
         refetctOnWindowsFocus: true,
         retry: 2,
         networkMode: 'offlineFirst'
-      });
+    });
 
     return (
         <div className="min-h-screen bg-pink-50 p-4">
@@ -30,7 +30,7 @@ const Plan = () => {
                         {data?.planOptions && data.planOptions.map((plan, i) => {
                             return (
                                 <AccordionTab header={plan.name} key={i}>
-                                    <div className='flex  justify-between items-center'>
+                                    <div className='flex justify-between items-center'>
                                         <p className="m-0">
                                         </p>
                                         <span>
@@ -42,7 +42,7 @@ const Plan = () => {
                                     <p className="m-0 grid grid-cols-2 gap-2">
                                         {plan.options.map((option, i) => {
                                             return (
-                                                <div key={i} className="lex justify-between items-center gap-2 flex flex-col items-center justify-center">
+                                                <div key={i} className="lex justify-between items-center gap-2 flex flex-col">
                                                     <span className="font-bold">Precio: {option.price}</span>
                                                     <span>Turnos: {option.turns}</span>
                                                 </div>
@@ -56,7 +56,6 @@ const Plan = () => {
                         }
 
                     </Accordion>
-
                     <Crear />
 
                 </div>

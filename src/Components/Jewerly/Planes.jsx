@@ -7,9 +7,9 @@ import { useUser } from '../Context/useUser';
 const Planes = () => {
 
   const [selectedOption, setSelectedOption] = useState(null);
-  const { setIdOptionSelected, setIdPlanSelected } = useUser();
+  const { setIdOptionSelected, setIdPlanSelected, setName } = useUser();
 
-   const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['planes'],
     queryFn: () => apis.getPlans(),
     staleTime: 1000 * 60 * 10,
@@ -27,6 +27,11 @@ const Planes = () => {
 
   return (
     <div className="mb-4 space-y-3">
+      <div className='m-4 mb-10'>
+        <span><input type="text" placeholder='Nombre' className="w-full border rounded-xl px-3 py-2" required
+          onChange={(e) => setName(e.target.value)}
+        /></span>
+      </div>
       <Accordion multiple activeIndex={[0]}>
         {data?.planOptions && data.planOptions.map((plan, key) => {
           return (

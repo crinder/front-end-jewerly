@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
     const [idPlanSelected, setIdPlanSelected] = useState(false);
     const [idOptionSelected, setIdOptionSelected] = useState(false);
     const [historySave, setHistorySave] = useState([]);
+    const [name, setName] = useState('');
 
     const checkAuth = async () => {
 
@@ -51,7 +52,8 @@ export const AuthProvider = ({ children }) => {
             totalTurns, setTotalTurns,
             idPlanSelected, setIdPlanSelected,
             idOptionSelected, setIdOptionSelected,
-            historySave, setHistorySave
+            historySave, setHistorySave,
+            name, setName
         }}>
             {children}
         </Context.Provider>
