@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Gift } from 'lucide-react';
 import Modal from '../Utils/Modal';
 import { Paginator } from 'primereact/paginator';
-        
+import Message from '../Utils/Message';
+
 
 const History = () => {
 
@@ -12,6 +13,10 @@ const History = () => {
     const [items, setItems] = useState([]);
     const [first, setFirst] = useState(0);
     const [rows, setRows] = useState(10);
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
+    const [messageTitle, setMessageTitle] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
 
     const { data, isLoading } = useQuery({
         queryKey: ['sesionHistory', first, rows],
@@ -21,7 +26,13 @@ const History = () => {
         refetctOnWindowsFocus: true,
         placeholderData: (previousData) => previousData,
         retry: 2,
-        networkMode: 'offlineFirst'
+        networkMode: 'offlineFirst',
+        onError: (error) => {
+            setShowMessage(true);
+            setMessage(error.message);
+            setMessageType('error');
+            setMessageTitle('Error al buscar sesiones');
+        }
     });
 
     const clickGift = (items) => {
@@ -37,7 +48,7 @@ const History = () => {
         setFirst(event.first);
         setRows(event.rows);
     };
-    
+
     return (
         <div className="min-h-screen bg-pink-50 p-4">
             <div className="flex items-center justify-center">
@@ -60,6 +71,16 @@ const History = () => {
                     <Paginator first={first} rows={rows} totalRecords={data?.totalSessions || 0} rowsPerPageOptions={[5, 10, 20, 30]} onPageChange={onPageChange} />
                 </div>
             </div>
+            {showMessage &&
+                <div className="fixed top-4 right-0 left-0 sm:left-auto sm:right-4 z-[9999] px-4 sm:px-0 flex flex-col items-center sm:items-end gap-3">
+                    <Message
+                        type={messageType}
+                        title={messageTitle}
+                        message={message}
+                        onClose={() => setShowMessage(false)}
+                    />
+                </div>
+            }
         </div>
     )
 }

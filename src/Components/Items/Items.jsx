@@ -1,34 +1,65 @@
 import React, { useState, useEffect } from 'react'
 import { apis } from '../Utils/Util';
 import { useNavigate } from 'react-router-dom';
+import Message from '../Utils/Message';
+import { Paginator } from 'primereact/paginator';
+import { Trash } from 'lucide-react';
+import { Dialog } from 'primereact/dialog';
 
 const Items = () => {
 
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState([]);
+    const [itemsD, setItemsD] = useState([]);
     const navigate = useNavigate();
+    const [first, setFirst] = useState(0);
+    const [rows, setRows] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
+    const [messageTitle, setMessageTitle] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
+    const [visible, setVisible] = useState(false);
+
+    const onPageChange = (event) => {
+        setFirst(event.first);
+        setRows(event.rows);
+    };
 
     useEffect(() => {
         const getItems = async () => {
-            const data = await apis.getItems();
-            console.log(data.items);
-            setItems(data.items);
-            setSelectedItem(data.items);
+            try {
+                const data = await apis.getItems({ first: first, rows: rows });
+
+                const itemsF = data.items.filter(item => item.active === 'ACT');
+                setItems(itemsF);
+                setSelectedItem(data.items);
+                setTotalPages(data.total);
+                setMessage('Items obtenidos exitosamente');
+                setMessageType('success');
+                setMessageTitle('Items obtenidos');
+                setShowMessage(true);
+            } catch (error) {
+                setShowMessage(true);
+                setMessage(error.message);
+                setMessageType('error');
+                setMessageTitle('Error al obtener items');
+            }
         }
 
         getItems();
     }, []);
 
     const handleUpdateItem = (id, field, value) => {
-    setSelectedItem(prevItems => {
-        return prevItems.map(item => {
-            if (item._id === id) {
-                return { ...item, [field]: value };
-            }
-            return item;
+        setSelectedItem(prevItems => {
+            return prevItems.map(item => {
+                if (item._id === id) {
+                    return { ...item, [field]: value };
+                }
+                return item;
+            });
         });
-    });
-};
+    };
 
     const updateItems = async () => {
 
@@ -42,8 +73,42 @@ const Items = () => {
 
         data.append('itemsData', JSON.stringify(propiedades));
 
+        try {
+            const response = await apis.updateItem(data);
+            setShowMessage(true);
+            setMessage('Items actualizados exitosamente');
+            setMessageType('success');
+            setMessageTitle('Items actualizados');
+        } catch (error) {
+            setShowMessage(true);
+            setMessage(error.message);
+            setMessageType('error');
+            setMessageTitle('Error al actualizar items');
+        }
 
-        const response = await apis.updateItem(data);
+    };
+
+    const handleRemove = (index) => {
+        setItemsD(index);
+        setVisible(true);
+    };
+
+    const handleRemoveItems = async () => {
+
+        try {
+            const response = await apis.deleteItem(itemsD);
+            setShowMessage(true);
+            setMessage('Items eliminados exitosamente');
+            setMessageType('success');
+            setMessageTitle('Items eliminados');
+        } catch (error) {
+            setShowMessage(true);
+            setMessage(error.message);
+            setMessageType('error');
+            setMessageTitle('Error al eliminar items');
+        }
+
+        setVisible(false);
 
     };
 
@@ -99,26 +164,31 @@ const Items = () => {
                                         <option value="collares">Collares</option>
                                         <option value="pulseras">Pulseras</option>
                                     </select>
-                                    <button
-                                        type="button"
-                                        title="Copiar categoría a los de abajo"
-
-                                        className="bg-pink-100 text-pink-600 px-3 rounded-xl hover:bg-pink-200 transition-colors"
-                                    >
-                                        buton
-                                    </button>
                                 </div>
 
-                                {/* Botón para descartar 
-                                        <button
-                                            onClick={() => handleRemove(index)}
-                                            className="text-red-400 hover:text-red-600 p-2"
-                                        >
-                                            <i className="pi pi-times-circle"></i>
-                                        </button>*/}
+                                <button
+                                    onClick={() => handleRemove(item._id)}
+                                    className="text-red-400 hover:text-red-600 p-2"
+                                >
+                                    <Trash size={16} />
+                                </button>
                             </div>
                         ))}
                     </div>
+
+
+                    <Dialog header="Eliminar items" visible={visible} style={{ width: '50vw' }} onHide={() => { if (!visible) return; setVisible(false); }}>
+                        <div className='flex flex-col items-center justify-center gap-2'>
+                            <p>¿Estás seguro que deseas eliminar los items seleccionados?</p>
+                            <div className="flex justify-center gap-2">
+                                <button className="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold" onClick={() => handleRemoveItems()}>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </Dialog>
+
+                    <Paginator first={first} rows={rows} totalRecords={totalPages} rowsPerPageOptions={[10, 20, 30]} onPageChange={onPageChange} />
 
                     <div className='flex justify-center mt-8'>
                         <button
@@ -139,6 +209,16 @@ const Items = () => {
                     </div>
                 </div>
             </div>
+            {showMessage &&
+                <div className="fixed top-4 right-0 left-0 sm:left-auto sm:right-4 z-[9999] px-4 sm:px-0 flex flex-col items-center sm:items-end gap-3">
+                    <Message
+                        type={messageType}
+                        title={messageTitle}
+                        message={message}
+                        onClose={() => setShowMessage(false)}
+                    />
+                </div>
+            }
         </div>
     )
 }

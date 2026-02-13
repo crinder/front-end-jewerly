@@ -107,7 +107,7 @@ export const apis = {
             body: data,
         });
 
-        if (!request.ok) throw new Error('Error guardando planes');
+        if (!request.ok) throw new Error('Error subiendo imagen ');
 
         return request.json();
 
@@ -121,7 +121,7 @@ export const apis = {
             body: JSON.stringify(data)
         });
 
-        if (!request.ok) throw new Error('Error buscando planes');
+        if (!request.ok) throw new Error('Error buscando items');
 
         return request.json();
 
@@ -139,6 +139,18 @@ export const apis = {
         });
 
         if (!request.ok) throw new Error('Error actualizando item');
+
+        return request.json();
+
+    },
+
+    deleteItem: async (data) => {
+
+        const request = await fetch(`${url}items/delete/${data}`, {
+            method: 'POST',
+        });
+
+        if (!request.ok) throw new Error('Error eliminando item');
 
         return request.json();
 
@@ -194,6 +206,19 @@ export const apis = {
         });
 
         if (!request.ok) throw new Error('Error buscando sesion');
+            
+        return request.json();
+
+    },
+
+    turnCancel: async (id) => {
+
+        const request = await fetch(`${url}sesions/cancel/${id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!request.ok) throw new Error('Error cancelando sesion');
             
         return request.json();
 

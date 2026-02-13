@@ -15,6 +15,11 @@ export const AuthProvider = ({ children }) => {
     const [idOptionSelected, setIdOptionSelected] = useState(false);
     const [historySave, setHistorySave] = useState([]);
     const [name, setName] = useState('');
+    const [cancel, setCancel] = useState(false);
+    const [sessionSave, setSessionSave] = useState(() => {
+        const idSave = localStorage.getItem('jewerly-sessionId');
+        return idSave ? idSave : null;
+    });
 
     const checkAuth = async () => {
 
@@ -24,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
             setToken(data.token);
             setLoading(false);
-            
+
         } else {
 
             setLoading(false);
@@ -32,7 +37,20 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-     useEffect(() => {
+    const cancelSesion = async () => {
+        console.log('cancelando sesion...');
+        setSessionId(false);
+        setTurnsUsed(0);
+        setTotalTurns(0);
+        setIdPlanSelected(false);
+        setIdOptionSelected(false);
+        setHistorySave([]);
+        setSessionSave(false);
+        localStorage.removeItem('jewerly-sessionId');
+        localStorage.removeItem('jewerly-indexActive');
+    }
+
+    useEffect(() => {
         if (!token && !userOff) {
             checkAuth();
         }
@@ -53,7 +71,11 @@ export const AuthProvider = ({ children }) => {
             idPlanSelected, setIdPlanSelected,
             idOptionSelected, setIdOptionSelected,
             historySave, setHistorySave,
-            name, setName
+            name, setName,
+            sessionSave, setSessionSave,
+            cancelSesion,
+            cancel,
+            setCancel
         }}>
             {children}
         </Context.Provider>

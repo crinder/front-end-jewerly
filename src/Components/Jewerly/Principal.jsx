@@ -7,15 +7,19 @@ import Juego from "./Juego";
 import { useUser } from '../Context/useUser';
 import { apis } from '../Utils/Util';
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import Message from '../Utils/Message';
 
 
 export default function Principal() {
-  const { sessionId, setSessionId, setTurnsUsed, setTotalTurns, idPlanSelected, setIdPlanSelected, idOptionSelected, setIdOptionSelected, setHistorySave, name } = useUser();
+  const { sessionSave, setSessionSave, setSessionId, turnsUsed, setTurnsUsed, setTotalTurns, idPlanSelected, setIdPlanSelected, idOptionSelected, setIdOptionSelected, setHistorySave, name, setCancel, cancel } = useUser();
   const stepperRef = useRef(null);
   const queryClient = useQueryClient();
+  const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('success');
+  const [messageTitle, setMessageTitle] = useState('');
 
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [selectedOption, setSelectedOption] = useState(null);
+
   const [indexActive, setIndexActive] = useState(() => {
 
     const saveIndex = localStorage.getItem('jewerly-indexActive', 0);
@@ -23,10 +27,6 @@ export default function Principal() {
 
   });
 
-  const [sessionSave, setSessionSave] = useState(() => {
-    const idSave = localStorage.getItem('jewerly-sessionId');
-    return idSave ? idSave : null;
-  });
 
 
   const { data: sesionMap, isLoading: isSesionLoading } = useQuery({
@@ -36,7 +36,13 @@ export default function Principal() {
     enabled: !!sessionSave,
     refetctOnWindowsFocus: true,
     retry: 2,
-    select: (data) => data?.sesion
+    select: (data) => data?.sesion,
+    onError: (error) => {
+      setShowMessage(true);
+      setMessage(error.message);
+      setMessageType('error');
+      setMessageTitle('Error al buscar sesion');
+    }
   });
 
   useEffect(() => {
@@ -81,7 +87,10 @@ export default function Principal() {
       }
     },
     onError: (error) => {
-      console.log(error);
+      setShowMessage(true);
+      setMessage(error.message);
+      setMessageType('error');
+      setMessageTitle('Error creando sesión');
     },
   });
 
@@ -110,6 +119,13 @@ export default function Principal() {
     }
   }
 
+  useEffect(() => {
+    if (cancel) {
+      setCancel(false);
+      prevStep();
+    }
+  }, [cancel]);
+
   return (
     <div className="min-h-screen bg-pink-50 p-4">
       <div className="flex items-center justify-center">
@@ -119,30 +135,43 @@ export default function Principal() {
             Selecciona un plan para jugar
           </p>
 
-          <div className="card flex justify-content-center">
+          <div className="card flex justify-content-center mb-5">
             <Stepper ref={stepperRef} style={{ flexBasis: '50rem' }}>
               <StepperPanel header="Turnos">
                 <div className="flex flex-column justify-center h-12rem">
                   <Planes />
                 </div>
-                <div className="flex pt-4 justify-content-between">
-                  <Button label="Next" icon="pi pi-arrow-right" iconPos="right" disabled={!idPlanSelected || !idOptionSelected} onClick={() => nextStep()} />
+                <div className="flex pt-4 justify-center">
+                  <Button className="!bg-pink-500 !border-pink-500 !shadow-lg hover:!scale-105 !transition-transform" label="Siguiente" icon="pi pi-arrow-right" iconPos="right" disabled={!idPlanSelected || !idOptionSelected} onClick={() => nextStep()} />
                 </div>
               </StepperPanel>
-              <StepperPanel header="Juego">
+              <StepperPanel header="Juego" className="!bg-pink-500 !border-pink-500 !shadow-lg">
                 <div className="flex flex-column justify-center h-12rem">
                   <Juego />
                 </div>
                 <div className="flex  justify-center h-12rem">
-                  <Button label="Back" severity="secondary" icon="pi pi-arrow-left" onClick={() => prevStep()} />
+                  {turnsUsed == 0 &&
+                    <Button className="!bg-pink-500 !border-pink-500 !shadow-lg hover:!scale-105 !transition-transform" label="Reiniciar" severity="secondary" icon="pi pi-arrow-left" onClick={() => prevStep()} />
+                  }
+
                 </div>
               </StepperPanel>
             </Stepper>
           </div>
 
+          {showMessage &&
+            <div className="fixed top-4 right-0 left-0 sm:left-auto sm:right-4 z-[9999] px-4 sm:px-0 flex flex-col items-center sm:items-end gap-3">
+              <Message
+                type= {messageType}
+                title= {messageTitle}
+                message= {message}
+                onClose={() => setShowMessage(false)}
+              />
+            </div>
+          }
+
         </div>
       </div>
-
     </div>
   );
 }

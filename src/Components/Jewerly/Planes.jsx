@@ -3,11 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { apis } from '../Utils/Util';
 import { useUser } from '../Context/useUser';
+import Message from '../Utils/Message';
 
 const Planes = () => {
 
   const [selectedOption, setSelectedOption] = useState(null);
   const { setIdOptionSelected, setIdPlanSelected, setName } = useUser();
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('success');
+  const [messageTitle, setMessageTitle] = useState('');
+  const [showMessage, setShowMessage] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['planes'],
@@ -16,7 +21,13 @@ const Planes = () => {
     gcTime: 1000 * 60 * 60,
     refetctOnWindowsFocus: true,
     retry: 2,
-    networkMode: 'offlineFirst'
+    networkMode: 'offlineFirst',
+    onError: (error) => {
+      setShowMessage(true);
+      setMessage(error.message);
+      setMessageType('error');
+      setMessageTitle('Error al buscar planes');
+    }
   });
 
   const handleSelect = (planName, optionIndex, idPlan, idOption) => {
@@ -61,6 +72,18 @@ const Planes = () => {
           )
         })}
       </Accordion>
+
+      {showMessage &&
+        <div className="fixed top-4 right-0 left-0 sm:left-auto sm:right-4 z-[9999] px-4 sm:px-0 flex flex-col items-center sm:items-end gap-3">
+          <Message
+            type={messageType}
+            title={messageTitle}
+            message={message}
+            onClose={() => setShowMessage(false)}
+          />
+        </div>
+      }
+
     </div>
   )
 }

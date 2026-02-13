@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { apis } from '../Utils/Util';
 import { useParams } from 'react-router-dom';
+import Message from '../Utils/Message';
 
 const ItemsPlan = () => {
 
     const [items, setItems] = useState([]);
     const { id } = useParams();
     const [selectedItems, setSelectedItems] = useState([]);
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
+    const [messageTitle, setMessageTitle] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
 
     const toggleItem = (id) => {
         setSelectedItems(prev => {
@@ -33,11 +38,11 @@ const ItemsPlan = () => {
     const updateItems = async () => {
 
         let data = {
-                availableItems: selectedItems.map((item) => ({
-                    item: item.id,
-                    chance: item.chance
-                }))
-            }
+            availableItems: selectedItems.map((item) => ({
+                item: item.id,
+                chance: item.chance
+            }))
+        }
 
         const response = await apis.updatePlan(id, data);
     };
@@ -49,23 +54,27 @@ const ItemsPlan = () => {
         }
 
         const getItems = async () => {
-            const data = await apis.getItems(param);
-            setItems(data.items);
 
-            const newItems = data.items.filter(item => item.exists).map(item => {
+            try {
+                const data = await apis.getItems(param);
+                setItems(data.items);
+                const newItems = data.items.filter(item => item.exists).map(item => {
 
-                if(item.exists){
-                    return {
-                        id: item._id,
-                        exists: item.exists,
-                        chance: item.chance 
+                    if (item.exists) {
+                        return {
+                            id: item._id,
+                            exists: item.exists,
+                            chance: item.chance
+                        }
                     }
-                }
-            });
-
-            console.log(newItems);
-
-            setSelectedItems(newItems);
+                });
+                setSelectedItems(newItems);
+            } catch (error) {
+                setShowMessage(true);
+                setMessage(error.message);
+                setMessageType('error');
+                setMessageTitle('Error al obtener items');
+            }
         }
 
         getItems();
@@ -88,13 +97,11 @@ const ItemsPlan = () => {
                             const selected = selectedItems.find(i => i.id === item._id);
                             let isSelected = Boolean(selected);
                             let porcentaje = selected?.chance ?? "";
-                            
-                            console.log(selected);
 
                             return (
                                 <div key={item._id}
-                                     onClick={() => toggleItem(item._id)}
-                                     className={`relative flex flex-col gap-4 p-4 rounded-2xl border cursor-pointer
+                                    onClick={() => toggleItem(item._id)}
+                                    className={`relative flex flex-col gap-4 p-4 rounded-2xl border cursor-pointer
                                 ${isSelected ? 'bg-pink-100 border-pink-400 shadow-md' : 'bg-pink-50 border-pink-100'}
 
                                 `}>
@@ -144,6 +151,18 @@ const ItemsPlan = () => {
 
                 </div>
             </div>
+
+            {showMessage &&
+                <div className="fixed top-4 right-0 left-0 sm:left-auto sm:right-4 z-[9999] px-4 sm:px-0 flex flex-col items-center sm:items-end gap-3">
+                    <Message
+                        type={messageType}
+                        title={messageTitle}
+                        message={message}
+                        onClose={() => setShowMessage(false)}
+                    />
+                </div>
+            }
+
         </div>
     )
 }

@@ -3,13 +3,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from 'primereact/dialog';
 import { Trash, SquarePlus } from 'lucide-react';
 import { apis } from '../Utils/Util';
+import Message from '../Utils/Message';
 
 const Crear = () => {
 
     const queryClient = useQueryClient();
-    
+
     const [visible, setVisible] = useState(false);
     const [opciones, setOpciones] = useState([{ turnos: '', precio: '' }]);
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
+    const [messageTitle, setMessageTitle] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
 
     const { mutate, isLoading } = useMutation({
         //useMutation se usa para POST, PUT, DELETE, useQuery para GET
@@ -18,10 +23,16 @@ const Crear = () => {
             //Invalido la query para actualizar los datos
             queryClient.invalidateQueries(['planes']);
             setVisible(false);
-            console.log(data);
+            setMessage('Plan creado exitosamente');
+            setMessageType('success');
+            setMessageTitle('Plan creado');
+            setShowMessage(true);
         },
         onError: (error) => {
-            console.log(error);
+            setShowMessage(true);
+            setMessage(error.message);
+            setMessageType('error');
+            setMessageTitle('Error al crear planes');
         },
     });
 
@@ -118,6 +129,16 @@ const Crear = () => {
                     </button>
                 </form>
             </Dialog>
+            {showMessage &&
+                <div className="fixed top-4 right-0 left-0 sm:left-auto sm:right-4 z-[9999] px-4 sm:px-0 flex flex-col items-center sm:items-end gap-3">
+                    <Message
+                        type={messageType}
+                        title={messageTitle}
+                        message={message}
+                        onClose={() => setShowMessage(false)}
+                    />
+                </div>
+            }
         </div>
     );
 };

@@ -40,3 +40,20 @@
 .read-the-docs {
   color: #888;
 }
+
+.p-stepper .p-stepper-number.p-highlight {
+    background-color: #ec4899 !important; /* pink-500 */
+    border-color: #ec4899 !important;
+    color: white !important;
+}
+
+/* Cambia el color del texto del paso activo */
+.p-stepper .p-stepper-title.p-highlight {
+    color: #db2777 !important; /* pink-600 */
+    font-weight: bold;
+}
+
+/* Cambia el color de la línea que conecta los pasos */
+.p-stepper .p-stepper-separator {
+    background-color: #fbcfe8 !important; /* pink-200 */
+}

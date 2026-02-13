@@ -1,9 +1,18 @@
 import React, { useState } from 'react'
 import Dropzone from '../Utils/Dropzone';
 import { apis } from '../Utils/Util';
+import Message from '../Utils/Message';
+import { useNavigate } from 'react-router-dom';
 
 const Upload = () => {
-const [preview, setPreview] = useState([]);
+
+    const [preview, setPreview] = useState([]);
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
+    const [messageTitle, setMessageTitle] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const navigate = useNavigate();
 
     const handleFilesSelected = (files) => {
         const newItems = files.map(file => ({
@@ -40,6 +49,7 @@ const [preview, setPreview] = useState([]);
     };
 
     const uploadItems = async () => {
+        setUploading(true);
         const data = new FormData();
 
         preview.forEach((item) => {
@@ -55,8 +65,25 @@ const [preview, setPreview] = useState([]);
 
         data.append('itemsData', JSON.stringify(propiedades));
 
+        try {
+            const response = await apis.uploadItem(data);
+            setShowMessage(true);
+            setMessage('Items subidos exitosamente');
+            setMessageType('success');
+            setMessageTitle('Items subidos');
+        } catch (error) {
+            setShowMessage(true);
+            setMessage(error.message);
+            setMessageType('error');
+            setMessageTitle('Error al subir items');
+        }
 
-        const response = await apis.uploadItem(data);
+        setTimeout(() => {
+            setShowMessage(false);
+            navigate('/app-jewerly/items');
+        }, 2000);
+
+        setUploading(false);
 
     };
 
@@ -143,7 +170,8 @@ const [preview, setPreview] = useState([]);
 
                             <div className='flex justify-center mt-8'>
                                 <button
-                                    className="w-full max-w-md py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 text-white font-bold shadow-lg hover:scale-105 transition-transform"
+                                    className={`w-full max-w-md py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 text-white font-bold shadow-lg hover:scale-105 transition-transform ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={uploading}
                                     onClick={uploadItems}
                                 >
                                     Subir {preview.length} items al inventario
@@ -153,6 +181,17 @@ const [preview, setPreview] = useState([]);
                     )}
                 </div>
             </div>
+
+            {showMessage &&
+                <div className="fixed top-4 right-0 left-0 sm:left-auto sm:right-4 z-[9999] px-4 sm:px-0 flex flex-col items-center sm:items-end gap-3">
+                    <Message
+                        type={messageType}
+                        title={messageTitle}
+                        message={message}
+                        onClose={() => setShowMessage(false)}
+                    />
+                </div>
+            }
         </div>
     )
 }
