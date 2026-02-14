@@ -3,6 +3,7 @@ import Dropzone from '../Utils/Dropzone';
 import { apis } from '../Utils/Util';
 import Message from '../Utils/Message';
 import { useNavigate } from 'react-router-dom';
+import imageCompression from 'browser-image-compression';
 
 const Upload = () => {
 
@@ -13,6 +14,7 @@ const Upload = () => {
     const [showMessage, setShowMessage] = useState(false);
     const [uploading, setUploading] = useState(false);
     const navigate = useNavigate();
+
 
     const handleFilesSelected = (files) => {
         const newItems = files.map(file => ({
@@ -52,39 +54,50 @@ const Upload = () => {
         setUploading(true);
         const data = new FormData();
 
-        preview.forEach((item) => {
-            data.append('images', item.file);
-        });
+        const files = preview.map(item => item.file);
 
-
-        const propiedades = preview.map((item) => ({
-            id: item.id,
-            name: item.name,
-            category: item.category
-        }));
-
-        data.append('itemsData', JSON.stringify(propiedades));
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1200,
+            useWebWorker: true
+        };
 
         try {
+            const compressedFiles = await Promise.all(
+                files.map(file => imageCompression(file, options))
+            );
+
+            compressedFiles.forEach((compressedFile) => {
+                data.append('images', compressedFile);
+            });
+
+            const propiedades = preview.map((item) => ({
+                id: item.id,
+                name: item.name,
+                category: item.category
+            }));
+
+            data.append('itemsData', JSON.stringify(propiedades));
             const response = await apis.uploadItem(data);
-            setShowMessage(true);
-            setMessage('Items subidos exitosamente');
+
             setMessageType('success');
-            setMessageTitle('Items subidos');
-        } catch (error) {
+            setMessageTitle('¡Éxito!');
+            setMessage('Items subidos exitosamente');
             setShowMessage(true);
-            setMessage(error.message);
+
+            setTimeout(() => {
+                setShowMessage(false);
+                navigate('/app-jewerly/items');
+            }, 2000);
+
+        } catch (error) {
             setMessageType('error');
             setMessageTitle('Error al subir items');
+            setMessage(error.response?.data?.message || error.message);
+            setShowMessage(true);
+        } finally {
+            setUploading(false);
         }
-
-        setTimeout(() => {
-            setShowMessage(false);
-            navigate('/app-jewerly/items');
-        }, 2000);
-
-        setUploading(false);
-
     };
 
     return (
@@ -136,7 +149,7 @@ const Upload = () => {
                                             />
                                         </div>
 
-                                        <div className="w-full md:w-48">
+                                        <div className="w-full md:w-48 flex justify-center gap-2">
                                             <select
                                                 className="w-full border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-pink-300 outline-none bg-white"
                                                 value={item.category || ''}
@@ -153,7 +166,7 @@ const Upload = () => {
                                                 onClick={() => handleFillDown(index, 'categoria')}
                                                 className="bg-pink-100 text-pink-600 px-3 rounded-xl hover:bg-pink-200 transition-colors"
                                             >
-                                                buton
+                                                Replicar
                                             </button>
                                         </div>
 

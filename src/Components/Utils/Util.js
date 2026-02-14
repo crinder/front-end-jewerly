@@ -73,7 +73,7 @@ export const apis = {
 
     },
 
-     updatePlan: async (id, data) => {
+    updatePlan: async (id, data) => {
 
         const request = await fetch(`${url}plan-options/update/${id}`, {
             method: 'POST',
@@ -87,13 +87,24 @@ export const apis = {
 
     },
 
-     getPlanId: async (idPlan) => {
+    getPlanId: async (idPlan) => {
         const request = await fetch(`${url}plan-options/plan/${idPlan}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
 
         if (!request.ok) throw new Error('Error creando sesion');
+
+        return request.json();
+    },
+
+    deletePlan: async (idPlan) => {
+        const request = await fetch(`${url}plan-options/delete/${idPlan}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!request.ok) throw new Error('Error eliminando plan');
 
         return request.json();
     },
@@ -156,7 +167,7 @@ export const apis = {
 
     },
 
-   /*** sesions ***/
+    /*** sesions ***/
 
     createSession: async (data) => {
 
@@ -186,13 +197,13 @@ export const apis = {
     },
 
     getSesion: async (idSesion) => {
-        const request = await fetch(`${url}sesions/sesion/${idSesion}`, {   
+        const request = await fetch(`${url}sesions/sesion/${idSesion}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
 
         if (!request.ok) throw new Error('Error buscando sesion');
-            
+
         return request.json();
 
     },
@@ -206,7 +217,7 @@ export const apis = {
         });
 
         if (!request.ok) throw new Error('Error buscando sesion');
-            
+
         return request.json();
 
     },
@@ -219,7 +230,7 @@ export const apis = {
         });
 
         if (!request.ok) throw new Error('Error cancelando sesion');
-            
+
         return request.json();
 
     },

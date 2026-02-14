@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from 'primereact/dialog';
 import { Trash, SquarePlus } from 'lucide-react';
 import { apis } from '../Utils/Util';
 import Message from '../Utils/Message';
 
-const Crear = () => {
+const Crear = ({ planData = null, visible, setVisible }) => {
 
     const queryClient = useQueryClient();
-
-    const [visible, setVisible] = useState(false);
+    const [form, setForm] = useState({ code: '', name: '' });
     const [opciones, setOpciones] = useState([{ turnos: '', precio: '' }]);
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('success');
@@ -18,12 +17,14 @@ const Crear = () => {
 
     const { mutate, isLoading } = useMutation({
         //useMutation se usa para POST, PUT, DELETE, useQuery para GET
-        mutationFn: (nuevoPlan) => apis.savePlan(nuevoPlan),
+        mutationFn: (nuevoPlan) => {
+            return planData ? apis.updatePlan(planData._id, nuevoPlan) : apis.savePlan(nuevoPlan);
+        },
         onSuccess: (data) => {
             //Invalido la query para actualizar los datos
             queryClient.invalidateQueries(['planes']);
             setVisible(false);
-            setMessage('Plan creado exitosamente');
+            setMessage(planData ? 'Plan actualizado exitosamente' : 'Plan creado exitosamente');
             setMessageType('success');
             setMessageTitle('Plan creado');
             setShowMessage(true);
@@ -35,6 +36,7 @@ const Crear = () => {
             setMessageTitle('Error al crear planes');
         },
     });
+
 
     const agregarOpcion = () => {
         setOpciones([...opciones, { turnos: '', precio: '' }]);
@@ -51,6 +53,25 @@ const Crear = () => {
         nuevasOpciones[index][name] = value;
         setOpciones(nuevasOpciones);
     };
+
+    useEffect(() => {
+        if (planData && visible) {
+            setForm({
+                code: planData.code || '',
+                name: planData.name || ''
+            });
+
+            if (planData.options) {
+                setOpciones(planData.options.map(opt => ({
+                    turnos: opt.turns,
+                    precio: opt.price
+                })));
+            }
+        } else if (!visible) {
+            setForm({ code: '', name: '' });
+            setOpciones([{ turnos: '', precio: '' }]);
+        }
+    }, [planData, visible]);
 
     const guardarPlanes = (e) => {
         e.preventDefault();
@@ -72,17 +93,23 @@ const Crear = () => {
 
     return (
         <div>
-            <div className='flex justify-center mt-4'>
-                <button className="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold" onClick={() => setVisible(true)}>
-                    Crear nuevo plan
-                </button>
-            </div>
-
             <Dialog header="Nuevo Plan de Premios" visible={visible} style={{ width: '90vw', maxWidth: '500px' }} onHide={() => setVisible(false)}>
                 <form onSubmit={guardarPlanes} className="space-y-4 mb-4">
                     <div className="space-y-2">
-                        <input name="code" placeholder="Código plan" className="w-full border rounded-xl px-3 py-2" required />
-                        <input name="name" placeholder="Nombre del plan" className="w-full border rounded-xl px-3 py-2" required />
+                        <input
+                            name="code"
+                            placeholder="Código plan"
+                            className="w-full border rounded-xl px-3 py-2"
+                            value={form.code}
+                            onChange={(e) => setForm({ ...form, code: e.target.value })}
+                            required />
+                        <input
+                            name="name"
+                            placeholder="Nombre del plan"
+                            className="w-full border rounded-xl px-3 py-2"
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                            required />
                     </div>
 
                     <hr />
@@ -125,7 +152,7 @@ const Crear = () => {
                     </div>
 
                     <button type="submit" className="w-full bg-pink-500 text-white py-3 rounded-xl font-bold mt-4 shadow-lg">
-                        Guardar Plan Completo
+                       {planData ? 'Actualizar Plan' : 'Guardar Plan Completo'}
                     </button>
                 </form>
             </Dialog>
